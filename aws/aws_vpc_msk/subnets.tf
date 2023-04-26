@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "us-west-2"
-}
-
 data "aws_availability_zones" "available" {}
 
 resource "aws_subnet" "private_subnet" {
@@ -12,13 +8,15 @@ resource "aws_subnet" "private_subnet" {
 
   tags = merge(
     local.common-tags,
-    var.subnet_tags,
     map(
       "Name", "MSK-${lower(var.environment)}-private-subnet-${count.index + 1}",
       "Description", "${lower(var.environment)} private subnet - ${count.index + 1}"
-    )
+    ),
   )
+
 }
+
+
 
 resource "aws_subnet" "public_subnet" {
   count             = length(var.public_subnet_cidrs)
@@ -28,24 +26,10 @@ resource "aws_subnet" "public_subnet" {
 
   tags = merge(
     local.common-tags,
-    var.subnet_tags,
     map(
       "Name", "msk-${lower(var.environment)}-public-subnet-${count.index + 1}",
       "Description", "${lower(var.environment)} private subnet - ${count.index + 1}"
-    )
+    ),
   )
-}
 
-variable "subnet_tags" {
-  type = map(string)
-  default = {
-    Name        = "my-subnet"
-    Environment = "dev"
-  }
-}
-
-locals {
-  common-tags = {
-    Team = "my-team"
-  }
 }
